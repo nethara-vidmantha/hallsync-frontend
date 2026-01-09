@@ -36,6 +36,7 @@ import BookHall from "./components/lecturer/BookHall";
 import MyBookings from "./components/lecturer/MyBookings";
 import ViewHalls from "./components/lecturer/ViewHalls";
 import BookingRequests from "./components/lecturer/BookingRequests";
+import TimetableViewer from "./components/common/TimetableViewer";
 
 // Representative Components
 import RepresentativeDashboard from "./components/representative/Dashboard";
@@ -244,7 +245,7 @@ function AppContent() {
           element={
             <ProtectedRoute allowedRoles={["lecturer"]}>
               <Layout>
-                <ManageTimetable />
+                <TimetableViewer />
               </Layout>
             </ProtectedRoute>
           }
@@ -287,6 +288,16 @@ function AppContent() {
             <ProtectedRoute allowedRoles={["representative"]}>
               <Layout>
                 <RepViewHalls />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/representative/timetable"
+          element={
+            <ProtectedRoute allowedRoles={["representative"]}>
+              <Layout>
+                <TimetableViewer />
               </Layout>
             </ProtectedRoute>
           }

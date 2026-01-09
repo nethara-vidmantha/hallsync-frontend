@@ -44,6 +44,11 @@ const Sidebar = () => {
       label: "My Requests",
     },
     { to: "/representative/halls", icon: FaDoorOpen, label: "View Halls" },
+    {
+      to: "/representative/timetable",
+      icon: FaCalendarAlt,
+      label: "Timetables",
+    },
   ];
 
   let links = [];

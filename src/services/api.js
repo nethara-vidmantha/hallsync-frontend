@@ -82,7 +82,8 @@ export const timetableAPI = {
   getTimetable: (id) => api.get(`/timetables/${id}`),
   updateTimetable: (id, data) => api.put(`/timetables/${id}`, data),
   deleteTimetable: (id) => api.delete(`/timetables/${id}`),
-  toggleStatus: (id) => api.patch(`/timetables/${id}/toggle-status`)
+  toggleStatus: (id) => api.patch(`/timetables/${id}/toggle-status`),
+  getSections: (params) => api.get('/timetables/sections', { params })
 };
 
 // Representative APIs

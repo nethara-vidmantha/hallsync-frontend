@@ -91,6 +91,14 @@ const Login = () => {
               className="input-field"
               placeholder="Enter your password"
             />
+            <div className="text-right mt-2">
+              <Link
+                to="/forgot-password"
+                className="text-primary-600 text-sm font-semibold hover:text-primary-700"
+              >
+                Forgot password?
+              </Link>
+            </div>
           </div>
 
           <button

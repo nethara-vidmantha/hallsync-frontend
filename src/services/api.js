@@ -41,7 +41,9 @@ export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
   getMe: () => api.get('/auth/me'),
-  verifyOtp: (data) => api.post('/auth/verify-otp', data)
+  verifyOtp: (data) => api.post('/auth/verify-otp', data),
+  forgotPassword: (data) => api.post('/auth/forgot-password', data),
+  resetPassword: (data) => api.post('/auth/reset-password', data)
 };
 
 // Admin APIs
@@ -90,6 +92,7 @@ export const timetableAPI = {
 export const representativeAPI = {
   createBookingRequest: (data) => api.post('/representative/booking-request', data),
   getMyRequests: () => api.get('/representative/my-requests'),
+  cancelBookingRequest: (id) => api.patch(`/representative/booking-request/${id}/cancel`),
   getAllLecturers: () => api.get('/representative/lecturers')
 };
 

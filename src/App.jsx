@@ -23,6 +23,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyOtp from "./pages/VerifyOtp";
 import NotFound from "./pages/NotFound";
+import ForgotPassword from "./pages/ForgotPassword";
 
 // Admin Components
 import AdminDashboard from "./components/admin/Dashboard";
@@ -113,6 +114,16 @@ function AppContent() {
               <Navigate to={`/${user.role}/dashboard`} replace />
             ) : (
               <Register />
+            )
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            isAuthenticated ? (
+              <Navigate to={`/${user.role}/dashboard`} replace />
+            ) : (
+              <ForgotPassword />
             )
           }
         />

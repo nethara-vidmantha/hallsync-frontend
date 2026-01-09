@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { bookingAPI } from '../../services/api';
-import { toast } from 'react-toastify';
-import { FaTimes } from 'react-icons/fa';
+import React, { useState, useEffect } from "react";
+import { bookingAPI } from "../../services/api";
+import { toast } from "react-toastify";
+import { FaTimes } from "react-icons/fa";
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,31 +17,34 @@ const MyBookings = () => {
       const response = await bookingAPI.getMyBookings();
       setBookings(response.data);
     } catch (error) {
-      toast.error('Failed to fetch bookings');
+      toast.error("Failed to fetch bookings");
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancelBooking = async (bookingId) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+    if (!window.confirm("Are you sure you want to cancel this booking?"))
+      return;
 
     try {
       await bookingAPI.cancelBooking(bookingId);
-      toast.success('Booking cancelled successfully');
+      toast.success("Booking cancelled successfully");
       fetchBookings();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to cancel booking');
+      toast.error(error.response?.data?.message || "Failed to cancel booking");
     }
   };
 
-  const filteredBookings = bookings.filter(booking => {
-    if (filter === 'all') return true;
-    if (filter === 'upcoming') {
-      return new Date(booking.date) >= new Date() && booking.status === 'active';
+  const filteredBookings = bookings.filter((booking) => {
+    if (filter === "all") return true;
+    if (filter === "upcoming") {
+      return (
+        new Date(booking.date) >= new Date() && booking.status === "active"
+      );
     }
-    if (filter === 'past') {
-      return new Date(booking.date) < new Date() || booking.status !== 'active';
+    if (filter === "past") {
+      return new Date(booking.date) < new Date() || booking.status !== "active";
     }
     return true;
   });
@@ -53,25 +56,31 @@ const MyBookings = () => {
       <div className="card mb-6">
         <div className="flex space-x-4">
           <button
-            onClick={() => setFilter('all')}
+            onClick={() => setFilter("all")}
             className={`px-4 py-2 rounded-lg font-medium ${
-              filter === 'all' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700'
+              filter === "all"
+                ? "bg-primary-600 text-white"
+                : "bg-gray-200 text-gray-700"
             }`}
           >
             All Bookings
           </button>
           <button
-            onClick={() => setFilter('upcoming')}
+            onClick={() => setFilter("upcoming")}
             className={`px-4 py-2 rounded-lg font-medium ${
-              filter === 'upcoming' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700'
+              filter === "upcoming"
+                ? "bg-primary-600 text-white"
+                : "bg-gray-200 text-gray-700"
             }`}
           >
             Upcoming
           </button>
           <button
-            onClick={() => setFilter('past')}
+            onClick={() => setFilter("past")}
             className={`px-4 py-2 rounded-lg font-medium ${
-              filter === 'past' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700'
+              filter === "past"
+                ? "bg-primary-600 text-white"
+                : "bg-gray-200 text-gray-700"
             }`}
           >
             Past
@@ -88,11 +97,11 @@ const MyBookings = () => {
               </h3>
               <span
                 className={`px-2 py-1 rounded text-xs font-medium ${
-                  booking.status === 'active'
-                    ? 'bg-green-100 text-green-800'
-                    : booking.status === 'cancelled'
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-gray-100 text-gray-800'
+                  booking.status === "active"
+                    ? "bg-green-100 text-green-800"
+                    : booking.status === "cancelled"
+                    ? "bg-red-100 text-red-800"
+                    : "bg-gray-100 text-gray-800"
                 }`}
               >
                 {booking.status}
@@ -101,32 +110,38 @@ const MyBookings = () => {
 
             <div className="space-y-2 text-sm text-gray-600 mb-4">
               <p>
-                <span className="font-medium">Building:</span> {booking.hall?.building}
+                <span className="font-medium">Building:</span>{" "}
+                {booking.hall?.building}
               </p>
               <p>
-                <span className="font-medium">Floor:</span> {booking.hall?.floor}
+                <span className="font-medium">Floor:</span>{" "}
+                {booking.hall?.floor && booking.hall?.floor !== "N/A"
+                  ? booking.hall.floor
+                  : "—"}
               </p>
               <p>
-                <span className="font-medium">Date:</span>{' '}
+                <span className="font-medium">Date:</span>{" "}
                 {new Date(booking.date).toLocaleDateString()}
               </p>
               <p>
-                <span className="font-medium">Time:</span> {booking.startTime} - {booking.endTime}
+                <span className="font-medium">Time:</span> {booking.startTime} -{" "}
+                {booking.endTime}
               </p>
               <p>
                 <span className="font-medium">Purpose:</span> {booking.purpose}
               </p>
             </div>
 
-            {booking.status === 'active' && new Date(booking.date) >= new Date() && (
-              <button
-                onClick={() => handleCancelBooking(booking._id)}
-                className="w-full btn-danger flex items-center justify-center space-x-2"
-              >
-                <FaTimes />
-                <span>Cancel Booking</span>
-              </button>
-            )}
+            {booking.status === "active" &&
+              new Date(booking.date) >= new Date() && (
+                <button
+                  onClick={() => handleCancelBooking(booking._id)}
+                  className="w-full btn-danger flex items-center justify-center space-x-2"
+                >
+                  <FaTimes />
+                  <span>Cancel Booking</span>
+                </button>
+              )}
           </div>
         ))}
       </div>

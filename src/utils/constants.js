@@ -6,8 +6,8 @@ export const BUILDINGS = [
 ];
 
 export const FLOORS = {
-  Auditorium: [{ value: 'Ground', label: 'Ground Floor' }],
-  Guesthouse: [{ value: 'Ground', label: 'Ground Floor' }],
+  Auditorium: [],
+  Guesthouse: [],
   LectureComplex: [
     { value: 'LGF', label: 'Lower Ground Floor (LGF)' },
     { value: 'GF', label: 'Ground Floor (GF)' },

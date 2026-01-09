@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { bookingAPI, hallAPI } from '../../services/api';
-import { toast } from 'react-toastify';
-import { BUILDINGS, FLOORS, TIME_SLOTS } from '../../utils/constants';
+import React, { useState, useEffect } from "react";
+import { bookingAPI, hallAPI } from "../../services/api";
+import { toast } from "react-toastify";
+import { BUILDINGS, FLOORS, TIME_SLOTS } from "../../utils/constants";
 
 const BookHall = () => {
   const [halls, setHalls] = useState([]);
   const [filteredHalls, setFilteredHalls] = useState([]);
-  const [filters, setFilters] = useState({ building: '', floor: '' });
+  const [filters, setFilters] = useState({ building: "", floor: "" });
   const [formData, setFormData] = useState({
-    hall: '',
-    date: '',
-    startTime: '08:00',
-    endTime: '09:00',
-    purpose: ''
+    hall: "",
+    date: "",
+    startTime: "08:00",
+    endTime: "09:00",
+    purpose: "",
   });
   const [loading, setLoading] = useState(false);
   const [availability, setAvailability] = useState([]);
@@ -31,27 +31,30 @@ const BookHall = () => {
     }
   }, [formData.date, filters]);
 
+  const buildingHasFloors = (building) =>
+    !["Auditorium", "Guesthouse"].includes(building);
+
   const fetchHalls = async () => {
     try {
       const response = await hallAPI.getAllHalls({ isActive: true });
       setHalls(response.data);
       setFilteredHalls(response.data);
     } catch (error) {
-      toast.error('Failed to fetch halls');
+      toast.error("Failed to fetch halls");
     }
   };
 
   const filterHalls = () => {
     let filtered = halls;
-    
+
     if (filters.building) {
-      filtered = filtered.filter(h => h.building === filters.building);
+      filtered = filtered.filter((h) => h.building === filters.building);
     }
-    
+
     if (filters.floor) {
-      filtered = filtered.filter(h => h.floor === filters.floor);
+      filtered = filtered.filter((h) => h.floor === filters.floor);
     }
-    
+
     setFilteredHalls(filtered);
   };
 
@@ -63,41 +66,78 @@ const BookHall = () => {
 
       const response = await bookingAPI.getHallAvailability(params);
       setAvailability(response.data);
+      return response.data;
     } catch (error) {
-      console.error('Failed to check availability');
+      console.error("Failed to check availability");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
+    if (!formData.date) {
+      toast.error("Please select a date");
+      return;
+    }
+
     if (formData.startTime >= formData.endTime) {
-      toast.error('End time must be after start time');
+      toast.error("End time must be after start time");
       return;
     }
 
     setLoading(true);
 
     try {
+      const latestAvailability = await checkAvailability();
+      const hallAvail = latestAvailability?.find(
+        (a) => a.hall.id === formData.hall
+      );
+      const overlaps = (
+        collection,
+        startKey = "startTime",
+        endKey = "endTime"
+      ) =>
+        collection?.some(
+          (item) =>
+            item[startKey] < formData.endTime &&
+            item[endKey] > formData.startTime
+        );
+
+      if (hallAvail) {
+        if (overlaps(hallAvail.bookings)) {
+          toast.error("This hall is already booked for the selected time.");
+          setLoading(false);
+          return;
+        }
+
+        if (overlaps(hallAvail.timetableEntries)) {
+          toast.error(
+            "This hall has a scheduled lecture at the selected time."
+          );
+          setLoading(false);
+          return;
+        }
+      }
+
       await bookingAPI.createBooking(formData);
-      toast.success('Hall booked successfully!');
+      toast.success("Hall booked successfully!");
       setFormData({
-        hall: '',
-        date: '',
-        startTime: '08:00',
-        endTime: '09:00',
-        purpose: ''
+        hall: "",
+        date: "",
+        startTime: "08:00",
+        endTime: "09:00",
+        purpose: "",
       });
       checkAvailability();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to book hall');
+      toast.error(error.response?.data?.message || "Failed to book hall");
     } finally {
       setLoading(false);
     }
   };
 
   const getHallAvailability = (hallId) => {
-    const hallAvail = availability.find(a => a.hall.id === hallId);
+    const hallAvail = availability.find((a) => a.hall.id === hallId);
     return hallAvail || null;
   };
 
@@ -109,7 +149,7 @@ const BookHall = () => {
         <div className="lg:col-span-1">
           <div className="card sticky top-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Filters</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -117,7 +157,13 @@ const BookHall = () => {
                 </label>
                 <select
                   value={filters.building}
-                  onChange={(e) => setFilters({ ...filters, building: e.target.value, floor: '' })}
+                  onChange={(e) =>
+                    setFilters({
+                      ...filters,
+                      building: e.target.value,
+                      floor: "",
+                    })
+                  }
                   className="input-field"
                 >
                   <option value="">All Buildings</option>
@@ -129,14 +175,16 @@ const BookHall = () => {
                 </select>
               </div>
 
-              {filters.building && (
+              {filters.building && buildingHasFloors(filters.building) && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Floor
                   </label>
                   <select
                     value={filters.floor}
-                    onChange={(e) => setFilters({ ...filters, floor: e.target.value })}
+                    onChange={(e) =>
+                      setFilters({ ...filters, floor: e.target.value })
+                    }
                     className="input-field"
                   >
                     <option value="">All Floors</option>
@@ -156,8 +204,10 @@ const BookHall = () => {
                 <input
                   type="date"
                   value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  min={new Date().toISOString().split('T')[0]}
+                  onChange={(e) =>
+                    setFormData({ ...formData, date: e.target.value })
+                  }
+                  min={new Date().toISOString().split("T")[0]}
                   className="input-field"
                 />
               </div>
@@ -167,8 +217,10 @@ const BookHall = () => {
 
         <div className="lg:col-span-2">
           <div className="card mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Booking Form</h2>
-            
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              Booking Form
+            </h2>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -176,7 +228,9 @@ const BookHall = () => {
                 </label>
                 <select
                   value={formData.hall}
-                  onChange={(e) => setFormData({ ...formData, hall: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, hall: e.target.value })
+                  }
                   className="input-field"
                   required
                 >
@@ -186,8 +240,12 @@ const BookHall = () => {
                     const isAvailable = avail?.isAvailable;
                     return (
                       <option key={hall._id} value={hall._id}>
-                        {hall.name} - {hall.building} ({hall.floor})
-                        {formData.date && (isAvailable ? ' ✓ Available' : ' ✗ Occupied')}
+                        {hall.name} - {hall.building}
+                        {hall.floor && hall.floor !== "N/A"
+                          ? ` (${hall.floor})`
+                          : ""}
+                        {formData.date &&
+                          (isAvailable ? " ✓ Available" : " ✗ Occupied")}
                       </option>
                     );
                   })}
@@ -201,7 +259,9 @@ const BookHall = () => {
                   </label>
                   <select
                     value={formData.startTime}
-                    onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, startTime: e.target.value })
+                    }
                     className="input-field"
                     required
                   >
@@ -219,7 +279,9 @@ const BookHall = () => {
                   </label>
                   <select
                     value={formData.endTime}
-                    onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, endTime: e.target.value })
+                    }
                     className="input-field"
                     required
                   >
@@ -238,7 +300,9 @@ const BookHall = () => {
                 </label>
                 <textarea
                   value={formData.purpose}
-                  onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, purpose: e.target.value })
+                  }
                   className="input-field"
                   rows="3"
                   required
@@ -251,7 +315,7 @@ const BookHall = () => {
                 disabled={loading}
                 className="w-full btn-primary disabled:opacity-50"
               >
-                {loading ? 'Booking...' : 'Book Hall'}
+                {loading ? "Booking..." : "Book Hall"}
               </button>
             </form>
           </div>
@@ -263,7 +327,8 @@ const BookHall = () => {
               </h3>
               {(() => {
                 const avail = getHallAvailability(formData.hall);
-                if (!avail) return <p className="text-gray-600">Loading schedule...</p>;
+                if (!avail)
+                  return <p className="text-gray-600">Loading schedule...</p>;
 
                 return (
                   <div className="space-y-3">
@@ -273,7 +338,10 @@ const BookHall = () => {
                           Scheduled Classes:
                         </h4>
                         {avail.timetableEntries.map((entry, idx) => (
-                          <div key={idx} className="bg-blue-50 p-3 rounded border-l-4 border-blue-500">
+                          <div
+                            key={idx}
+                            className="bg-blue-50 p-3 rounded border-l-4 border-blue-500"
+                          >
                             <p className="font-medium">{entry.subject}</p>
                             <p className="text-sm text-gray-600">
                               {entry.startTime} - {entry.endTime}
@@ -289,7 +357,10 @@ const BookHall = () => {
                           Existing Bookings:
                         </h4>
                         {avail.bookings.map((booking, idx) => (
-                          <div key={idx} className="bg-yellow-50 p-3 rounded border-l-4 border-yellow-500">
+                          <div
+                            key={idx}
+                            className="bg-yellow-50 p-3 rounded border-l-4 border-yellow-500"
+                          >
                             <p className="font-medium">{booking.purpose}</p>
                             <p className="text-sm text-gray-600">
                               {booking.startTime} - {booking.endTime}

@@ -1,14 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { hallAPI, bookingAPI } from '../../services/api';
-import { toast } from 'react-toastify';
-import { BUILDINGS, FLOORS } from '../../utils/constants';
+import React, { useState, useEffect } from "react";
+import { hallAPI, bookingAPI } from "../../services/api";
+import { toast } from "react-toastify";
+import { BUILDINGS, FLOORS } from "../../utils/constants";
 
 const RepViewHalls = () => {
   const [halls, setHalls] = useState([]);
-  const [filters, setFilters] = useState({ building: '', floor: '' });
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [filters, setFilters] = useState({ building: "", floor: "" });
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const buildingHasFloors = (building) =>
+    !["Auditorium", "Guesthouse"].includes(building);
 
   useEffect(() => {
     fetchHalls();
@@ -29,7 +34,7 @@ const RepViewHalls = () => {
       const response = await hallAPI.getAllHalls(params);
       setHalls(response.data);
     } catch (error) {
-      toast.error('Failed to fetch halls');
+      toast.error("Failed to fetch halls");
     } finally {
       setLoading(false);
     }
@@ -44,18 +49,31 @@ const RepViewHalls = () => {
       const response = await bookingAPI.getHallAvailability(params);
       setAvailability(response.data);
     } catch (error) {
-      console.error('Failed to check availability');
+      console.error("Failed to check availability");
     }
   };
 
   const getHallStatus = (hallId) => {
-    const avail = availability.find(a => a.hall.id === hallId);
-    if (!avail) return { status: 'unknown', label: 'Checking...', color: 'bg-gray-100 text-gray-800' };
-    
+    const avail = availability.find((a) => a.hall.id === hallId);
+    if (!avail)
+      return {
+        status: "unknown",
+        label: "Checking...",
+        color: "bg-gray-100 text-gray-800",
+      };
+
     if (avail.isAvailable) {
-      return { status: 'available', label: 'Available', color: 'bg-green-100 text-green-800' };
+      return {
+        status: "available",
+        label: "Available",
+        color: "bg-green-100 text-green-800",
+      };
     } else {
-      return { status: 'booked', label: 'Occupied', color: 'bg-red-100 text-red-800' };
+      return {
+        status: "booked",
+        label: "Occupied",
+        color: "bg-red-100 text-red-800",
+      };
     }
   };
 
@@ -83,7 +101,9 @@ const RepViewHalls = () => {
             </label>
             <select
               value={filters.building}
-              onChange={(e) => setFilters({ building: e.target.value, floor: '' })}
+              onChange={(e) =>
+                setFilters({ building: e.target.value, floor: "" })
+              }
               className="input-field"
             >
               <option value="">All Buildings</option>
@@ -95,14 +115,16 @@ const RepViewHalls = () => {
             </select>
           </div>
 
-          {filters.building && (
+          {filters.building && buildingHasFloors(filters.building) && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Floor
               </label>
               <select
                 value={filters.floor}
-                onChange={(e) => setFilters({ ...filters, floor: e.target.value })}
+                onChange={(e) =>
+                  setFilters({ ...filters, floor: e.target.value })
+                }
                 className="input-field"
               >
                 <option value="">All Floors</option>
@@ -117,7 +139,7 @@ const RepViewHalls = () => {
 
           <div className="flex items-end">
             <button
-              onClick={() => setFilters({ building: '', floor: '' })}
+              onClick={() => setFilters({ building: "", floor: "" })}
               className="btn-secondary w-full"
             >
               Clear Filters
@@ -129,31 +151,41 @@ const RepViewHalls = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {halls.map((hall) => {
           const status = getHallStatus(hall._id);
-          const avail = availability.find(a => a.hall.id === hall._id);
+          const avail = availability.find((a) => a.hall.id === hall._id);
 
           return (
             <div key={hall._id} className="card">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">{hall.name}</h3>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    {hall.name}
+                  </h3>
                   <p className="text-sm text-gray-600">
-                    {hall.building} - {hall.floor}
+                    {hall.building}
+                    {hall.floor && hall.floor !== "N/A"
+                      ? ` - ${hall.floor}`
+                      : ""}
                   </p>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${status.color}`}>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${status.color}`}
+                >
                   {status.label}
                 </span>
               </div>
 
               <div className="space-y-2 text-sm text-gray-600 mb-4">
                 <p>
-                  <span className="font-medium">Capacity:</span> {hall.capacity} people
+                  <span className="font-medium">Capacity:</span> {hall.capacity}{" "}
+                  people
                 </p>
               </div>
 
               {avail && !avail.isAvailable && (
                 <div className="mt-4 pt-4 border-t">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Occupied Times:</p>
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    Occupied Times:
+                  </p>
                   <div className="space-y-2">
                     {avail.timetableEntries.map((entry, idx) => (
                       <div key={idx} className="text-xs bg-blue-50 p-2 rounded">
@@ -164,7 +196,10 @@ const RepViewHalls = () => {
                       </div>
                     ))}
                     {avail.bookings.map((booking, idx) => (
-                      <div key={idx} className="text-xs bg-yellow-50 p-2 rounded">
+                      <div
+                        key={idx}
+                        className="text-xs bg-yellow-50 p-2 rounded"
+                      >
                         <p className="font-medium">{booking.purpose}</p>
                         <p className="text-gray-600">
                           {booking.startTime} - {booking.endTime}

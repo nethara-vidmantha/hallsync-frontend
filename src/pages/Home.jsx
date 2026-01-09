@@ -32,7 +32,7 @@ const Home = () => {
           <div className="space-y-6">
             <span className="pill">Hall bookings reimagined</span>
             <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 leading-tight">
-              Orchestrate campus halls with clarity and confidence.
+              One platform to book and manage all faculty facilities with confidence.
             </h1>
             <p className="text-lg text-slate-600">
               HallSync keeps bookings, timetables, and role permissions in one

@@ -1,40 +1,47 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./App.css";
 
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 // Common Components
-import Navbar from './components/common/Navbar';
-import Sidebar from './components/common/Sidebar';
-import ProtectedRoute from './components/common/ProtectedRoute';
-import Loading from './components/common/Loading';
+import Navbar from "./components/common/Navbar";
+import Sidebar from "./components/common/Sidebar";
+import ProtectedRoute from "./components/common/ProtectedRoute";
+import Loading from "./components/common/Loading";
 
 // Pages
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import NotFound from './pages/NotFound';
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import VerifyOtp from "./pages/VerifyOtp";
+import NotFound from "./pages/NotFound";
 
 // Admin Components
-import AdminDashboard from './components/admin/Dashboard';
-import ManageUsers from './components/admin/ManageUsers';
-import ManageTimetable from './components/admin/ManageTimetable';
-import VerifyReps from './components/admin/VerifyReps';
+import AdminDashboard from "./components/admin/Dashboard";
+import ManageUsers from "./components/admin/ManageUsers";
+import ManageTimetable from "./components/admin/ManageTimetable";
+import VerifyReps from "./components/admin/VerifyReps";
 
 // Lecturer Components
-import LecturerDashboard from './components/lecturer/Dashboard';
-import BookHall from './components/lecturer/BookHall';
-import MyBookings from './components/lecturer/MyBookings';
-import ViewHalls from './components/lecturer/ViewHalls';
-import BookingRequests from './components/lecturer/BookingRequests';
+import LecturerDashboard from "./components/lecturer/Dashboard";
+import BookHall from "./components/lecturer/BookHall";
+import MyBookings from "./components/lecturer/MyBookings";
+import ViewHalls from "./components/lecturer/ViewHalls";
+import BookingRequests from "./components/lecturer/BookingRequests";
 
 // Representative Components
-import RepresentativeDashboard from './components/representative/Dashboard';
-import RequestBooking from './components/representative/RequestBooking';
-import MyRequests from './components/representative/MyRequests';
-import RepViewHalls from './components/representative/ViewHalls';
+import RepresentativeDashboard from "./components/representative/Dashboard";
+import RequestBooking from "./components/representative/RequestBooking";
+import MyRequests from "./components/representative/MyRequests";
+import RepViewHalls from "./components/representative/ViewHalls";
 
 // Layout Component
 const Layout = ({ children }) => {
@@ -45,11 +52,12 @@ const Layout = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen relative">
+      <div className="gradient-veil" aria-hidden />
       <Navbar />
       <div className="flex">
         <Sidebar />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 px-6 py-8">{children}</main>
       </div>
     </div>
   );
@@ -89,18 +97,40 @@ function AppContent() {
         />
         <Route
           path="/login"
-          element={isAuthenticated ? <Navigate to={`/${user.role}/dashboard`} replace /> : <Login />}
+          element={
+            isAuthenticated ? (
+              <Navigate to={`/${user.role}/dashboard`} replace />
+            ) : (
+              <Login />
+            )
+          }
         />
         <Route
           path="/register"
-          element={isAuthenticated ? <Navigate to={`/${user.role}/dashboard`} replace /> : <Register />}
+          element={
+            isAuthenticated ? (
+              <Navigate to={`/${user.role}/dashboard`} replace />
+            ) : (
+              <Register />
+            )
+          }
+        />
+        <Route
+          path="/verify-otp"
+          element={
+            isAuthenticated && user?.isVerified ? (
+              <Navigate to={`/${user.role}/dashboard`} replace />
+            ) : (
+              <VerifyOtp />
+            )
+          }
         />
 
         {/* Admin Routes */}
         <Route
           path="/admin/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <Layout>
                 <AdminDashboard />
               </Layout>
@@ -110,7 +140,7 @@ function AppContent() {
         <Route
           path="/admin/users"
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <Layout>
                 <ManageUsers />
               </Layout>
@@ -120,7 +150,7 @@ function AppContent() {
         <Route
           path="/admin/timetable"
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <Layout>
                 <ManageTimetable />
               </Layout>
@@ -130,7 +160,7 @@ function AppContent() {
         <Route
           path="/admin/verify-reps"
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <Layout>
                 <VerifyReps />
               </Layout>
@@ -140,7 +170,7 @@ function AppContent() {
         <Route
           path="/admin/halls"
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <Layout>
                 <ViewHalls />
               </Layout>
@@ -150,7 +180,7 @@ function AppContent() {
         <Route
           path="/admin/bookings"
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <Layout>
                 <MyBookings />
               </Layout>
@@ -162,7 +192,7 @@ function AppContent() {
         <Route
           path="/lecturer/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['lecturer']}>
+            <ProtectedRoute allowedRoles={["lecturer"]}>
               <Layout>
                 <LecturerDashboard />
               </Layout>
@@ -172,7 +202,7 @@ function AppContent() {
         <Route
           path="/lecturer/book-hall"
           element={
-            <ProtectedRoute allowedRoles={['lecturer']}>
+            <ProtectedRoute allowedRoles={["lecturer"]}>
               <Layout>
                 <BookHall />
               </Layout>
@@ -182,7 +212,7 @@ function AppContent() {
         <Route
           path="/lecturer/bookings"
           element={
-            <ProtectedRoute allowedRoles={['lecturer']}>
+            <ProtectedRoute allowedRoles={["lecturer"]}>
               <Layout>
                 <MyBookings />
               </Layout>
@@ -192,7 +222,7 @@ function AppContent() {
         <Route
           path="/lecturer/halls"
           element={
-            <ProtectedRoute allowedRoles={['lecturer']}>
+            <ProtectedRoute allowedRoles={["lecturer"]}>
               <Layout>
                 <ViewHalls />
               </Layout>
@@ -202,7 +232,7 @@ function AppContent() {
         <Route
           path="/lecturer/requests"
           element={
-            <ProtectedRoute allowedRoles={['lecturer']}>
+            <ProtectedRoute allowedRoles={["lecturer"]}>
               <Layout>
                 <BookingRequests />
               </Layout>
@@ -212,7 +242,7 @@ function AppContent() {
         <Route
           path="/lecturer/timetable"
           element={
-            <ProtectedRoute allowedRoles={['lecturer']}>
+            <ProtectedRoute allowedRoles={["lecturer"]}>
               <Layout>
                 <ManageTimetable />
               </Layout>
@@ -224,7 +254,7 @@ function AppContent() {
         <Route
           path="/representative/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['representative']}>
+            <ProtectedRoute allowedRoles={["representative"]}>
               <Layout>
                 <RepresentativeDashboard />
               </Layout>
@@ -234,7 +264,7 @@ function AppContent() {
         <Route
           path="/representative/request"
           element={
-            <ProtectedRoute allowedRoles={['representative']}>
+            <ProtectedRoute allowedRoles={["representative"]}>
               <Layout>
                 <RequestBooking />
               </Layout>
@@ -244,7 +274,7 @@ function AppContent() {
         <Route
           path="/representative/requests"
           element={
-            <ProtectedRoute allowedRoles={['representative']}>
+            <ProtectedRoute allowedRoles={["representative"]}>
               <Layout>
                 <MyRequests />
               </Layout>
@@ -254,7 +284,7 @@ function AppContent() {
         <Route
           path="/representative/halls"
           element={
-            <ProtectedRoute allowedRoles={['representative']}>
+            <ProtectedRoute allowedRoles={["representative"]}>
               <Layout>
                 <RepViewHalls />
               </Layout>

@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { toast, ToastContainer } from 'react-toastify';
-import { DEPARTMENTS } from '../utils/constants';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { toast, ToastContainer } from "react-toastify";
+import { DEPARTMENTS } from "../utils/constants";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: 'lecturer',
-    department: '',
-    phoneNumber: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "lecturer",
+    department: "",
+    phoneNumber: "",
   });
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -27,17 +27,20 @@ const Register = () => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error("Passwords do not match");
       return;
     }
 
     if (formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast.error("Password must be at least 6 characters");
       return;
     }
 
-    if (formData.role === 'lecturer' && !formData.email.endsWith('@sjp.ac.lk')) {
-      toast.error('Lecturers must use university email (@sjp.ac.lk)');
+    if (
+      formData.role === "lecturer" &&
+      !formData.email.endsWith("@gmail.com")
+    ) {
+      toast.error("Lecturers must use @gmail.com email");
       return;
     }
 
@@ -46,36 +49,64 @@ const Register = () => {
     try {
       const { confirmPassword, ...registrationData } = formData;
       const user = await register(registrationData);
-      
-      if (user.role === 'representative' && !user.isVerified) {
-        toast.success('Registration successful! Please wait for admin approval.');
-        setTimeout(() => navigate('/login'), 2000);
-      } else {
-        toast.success('Registration successful!');
-        if (user.role === 'lecturer') {
-          navigate('/lecturer/dashboard');
-        }
+
+      if (user.role === "representative" && !user.isVerified) {
+        toast.success(
+          "Registration successful! Please wait for admin approval."
+        );
+        setTimeout(() => navigate("/login"), 2000);
+        return;
+      }
+
+      if (user.role === "lecturer" && !user.isVerified) {
+        toast.success("Registration successful! We sent an OTP to your email.");
+        localStorage.setItem("pendingLecturerEmail", registrationData.email);
+        navigate("/verify-otp", { state: { email: registrationData.email } });
+        return;
+      }
+
+      toast.success("Registration successful!");
+      if (user.role === "lecturer") {
+        navigate("/lecturer/dashboard");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Registration failed');
+      toast.error(error.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-500 to-primary-700 py-12">
+    <div className="relative min-h-screen flex items-center justify-center py-12 overflow-hidden">
+      <div
+        className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-indigo-50"
+        aria-hidden
+      />
+      <div
+        className="absolute -left-24 top-20 h-80 w-80 rounded-full bg-primary-200/40 blur-3xl"
+        aria-hidden
+      />
+      <div
+        className="absolute right-10 bottom-10 h-96 w-96 rounded-full bg-indigo-200/40 blur-3xl"
+        aria-hidden
+      />
+
       <ToastContainer position="top-right" autoClose={3000} />
-      <div className="card max-w-2xl w-full mx-4">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-          <p className="text-gray-600">Join HallSync - Faculty of Technology USJ</p>
+      <div className="card max-w-3xl w-full mx-4 shadow-primary-500/15">
+        <div className="text-center mb-8 space-y-2">
+          <p className="pill mx-auto w-fit">Create your HallSync account</p>
+          <h1 className="text-3xl font-bold text-slate-900">
+            Join the Faculty workspace
+          </h1>
+          <p className="text-slate-600">
+            Book, approve, and manage campus halls with ease.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Full Name *
               </label>
               <input
@@ -88,9 +119,8 @@ const Register = () => {
                 placeholder="Enter your name"
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Email Address *
               </label>
               <input
@@ -100,15 +130,17 @@ const Register = () => {
                 onChange={handleChange}
                 required
                 className="input-field"
-                placeholder="your.email@sjp.ac.lk"
+                placeholder="your.email@gmail.com"
               />
-              {formData.role === 'lecturer' && (
-                <p className="text-xs text-gray-500 mt-1">Must use @sjp.ac.lk email</p>
+              {formData.role === "lecturer" && (
+                <p className="text-xs text-slate-500 mt-1">
+                  Must use @gmail.com email
+                </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Password *
               </label>
               <input
@@ -123,7 +155,7 @@ const Register = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Confirm Password *
               </label>
               <input
@@ -138,7 +170,7 @@ const Register = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Role *
               </label>
               <select
@@ -154,7 +186,7 @@ const Register = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Department *
               </label>
               <select
@@ -174,7 +206,7 @@ const Register = () => {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Phone Number
               </label>
               <input
@@ -188,10 +220,11 @@ const Register = () => {
             </div>
           </div>
 
-          {formData.role === 'representative' && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-sm text-yellow-800">
-                <strong>Note:</strong> Representative accounts require admin approval before access is granted.
+          {formData.role === "representative" && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800">
+              <p className="text-sm">
+                <strong>Note:</strong> Representative accounts require admin
+                approval before access is granted.
               </p>
             </div>
           )}
@@ -201,14 +234,17 @@ const Register = () => {
             disabled={loading}
             className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Creating Account...' : 'Register'}
+            {loading ? "Creating Account..." : "Register"}
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600">
-            Already have an account?{' '}
-            <Link to="/login" className="text-primary-600 font-medium hover:text-primary-700">
+          <p className="text-slate-600">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-primary-600 font-semibold hover:text-primary-700"
+            >
               Login here
             </Link>
           </p>

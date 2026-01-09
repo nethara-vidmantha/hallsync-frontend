@@ -1,31 +1,54 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg: linear-gradient(145deg, #f8fafc 0%, #eef2ff 55%, #e0f2fe 100%);
+    --panel: rgba(255, 255, 255, 0.82);
+  }
+
+  * {
+    @apply antialiased;
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900;
+    font-family: "Space Grotesk", "Manrope", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: #0f172a;
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background-color: #2563eb;
+    color: #f8fafc;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors duration-200 font-medium;
+    @apply bg-gradient-to-r from-primary-600 via-primary-500 to-indigo-500 text-white px-4 py-2 rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-600/30 transition-all duration-200 font-semibold hover:translate-y-[-1px];
   }
   
   .btn-secondary {
-    @apply bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium;
+    @apply bg-white text-slate-800 px-4 py-2 rounded-xl border border-slate-200 hover:border-primary-200 hover:text-primary-700 transition-all duration-200 font-semibold shadow-sm;
   }
   
   .btn-danger {
-    @apply bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium;
+    @apply bg-gradient-to-r from-rose-600 to-orange-500 text-white px-4 py-2 rounded-xl shadow-lg shadow-rose-400/25 hover:shadow-rose-500/30 transition-all duration-200 font-semibold;
   }
   
   .input-field {
-    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all;
+    @apply w-full px-4 py-3 rounded-xl border border-slate-200 bg-white/90 focus:ring-2 focus:ring-primary-400 focus:border-transparent outline-none transition-all text-slate-900 placeholder:text-slate-400;
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-md p-6;
+    @apply rounded-2xl border border-white/70 bg-white/80 backdrop-blur-xl shadow-xl shadow-primary-500/10 p-6;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold bg-white/70 text-primary-700 border border-white/80 shadow-sm;
   }
 }
